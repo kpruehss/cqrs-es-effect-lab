@@ -28,7 +28,7 @@ export const bankAccountDecider: Decider<BankAccountCommand, BankAccountState, B
           ? { ...state, balance: applyToBalance(state.balance, event.amount, "debit") }
           : state;
       case "AccountClosed":
-        return state._tag === "Open" ? { ...state, _tag: "Closed", accountId: state.accountId } : state;
+        return state._tag === "Open" ? { _tag: "Closed", accountId: state.accountId } : state;
     }
   },
   decide: (command, state) =>

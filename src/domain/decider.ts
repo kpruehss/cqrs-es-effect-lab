@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import type { Effect } from "effect";
 
 export interface Decider<Command, State, Event, DomainError> {
   readonly decide: (command: Command, state: State) => Effect.Effect<ReadonlyArray<Event>, DomainError>;
