@@ -1,15 +1,16 @@
 import { DateTime, Effect } from "effect";
-import { Decider } from "../decider";
-import { BankAccountCommand } from "./commands";
+import type { Decider } from "../decider";
+import { applyToBalance, nextBalance, zeroBalance } from "../money";
+import type { BankAccountCommand } from "./commands";
 import {
   AccountAlreadyOpen,
   AccountClosedError,
   AccountNotFound,
-  BankAccountError,
+  type BankAccountError,
   InsufficientFunds,
 } from "./errors.js";
-import { AccountClosed, AccountOpened, BankAccountEvent, Deposited, Withdrawn } from "./events.js";
-import { BankAccountState } from "./state.js";
+import { AccountClosed, AccountOpened, type BankAccountEvent, Deposited, Withdrawn } from "./events";
+import type { BankAccountState } from "./state.js";
 
 export const bankAccountDecider: Decider<BankAccountCommand, BankAccountState, BankAccountEvent, BankAccountError> = {
   initialState: { _tag: "NonExistent" },
@@ -17,11 +18,15 @@ export const bankAccountDecider: Decider<BankAccountCommand, BankAccountState, B
   evolve: (state, event) => {
     switch (event._tag) {
       case "AccountOpened":
-        return { _tag: "Open", accountId: event.accountId, balance: 0 };
+        return { _tag: "Open", accountId: event.accountId, balance: zeroBalance };
       case "Deposited":
-        return state._tag === "Open" ? { ...state, balance: state.balance + event.amount } : state;
+        return state._tag === "Open"
+          ? { ...state, balance: applyToBalance(state.balance, event.amount, "credit") }
+          : state;
       case "Withdrawn":
-        return state._tag === "Open" ? { ...state, balance: state.balance - event.amount } : state;
+        return state._tag === "Open"
+          ? { ...state, balance: applyToBalance(state.balance, event.amount, "debit") }
+          : state;
       case "AccountClosed":
         return state._tag === "Open" ? { ...state, _tag: "Closed", accountId: state.accountId } : state;
     }
@@ -42,6 +47,8 @@ export const bankAccountDecider: Decider<BankAccountCommand, BankAccountState, B
           if (state._tag === "Closed")
             return yield* Effect.fail(new AccountClosedError({ accountId: command.accountId }));
           const depositedAt = yield* DateTime.now;
+          // Guard the projected balance against safe-integer ceiling before emitting the event
+          yield* nextBalance(state.balance, command.amount, "credit");
           return [new Deposited({ amount: command.amount, depositedAt })];
         }
         case "Withdraw": {
@@ -49,6 +56,8 @@ export const bankAccountDecider: Decider<BankAccountCommand, BankAccountState, B
             return yield* Effect.fail(new AccountNotFound({ accountId: command.accountId }));
           if (state._tag === "Closed")
             return yield* Effect.fail(new AccountClosedError({ accountId: command.accountId }));
+          // No overdraft or credit lines supported *yet*.
+          // When support is added, make check explicit using nextBalance()
           if (command.amount > state.balance) {
             return yield* Effect.fail(new InsufficientFunds({ requested: command.amount, available: state.balance }));
           }

@@ -1,4 +1,5 @@
 import { Data } from "effect";
+import type { BalanceCents, Cents } from "../money";
 
 export class AccountNotFound extends Data.TaggedError("AccountNotFound")<{ accountId: string }> {}
 
@@ -7,8 +8,8 @@ export class AccountAlreadyOpen extends Data.TaggedError("AccountAlreadyOpen")<{
 export class AccountClosedError extends Data.TaggedError("AccountClosedError")<{ accountId: string }> {}
 
 export class InsufficientFunds extends Data.TaggedError("InsufficientFunds")<{
-  requested: number;
-  available: number;
+  requested: Cents;
+  available: BalanceCents;
 }> {}
 
 export class BalanceOverflow extends Data.TaggedError("BalanceOverflow")<{
