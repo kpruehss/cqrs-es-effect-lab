@@ -1,4 +1,5 @@
 import { Schema } from "effect";
+import { Cents } from "../money";
 
 export class AccountOpened extends Schema.TaggedClass<AccountOpened>()("AccountOpened", {
   accountId: Schema.String,
@@ -6,12 +7,12 @@ export class AccountOpened extends Schema.TaggedClass<AccountOpened>()("AccountO
 }) {}
 
 export class Deposited extends Schema.TaggedClass<Deposited>()("Deposited", {
-  amount: Schema.Number,
+  amount: Cents,
   depositedAt: Schema.DateTimeUtc,
 }) {}
 
 export class Withdrawn extends Schema.TaggedClass<Withdrawn>()("Withdrawn", {
-  amount: Schema.Number,
+  amount: Cents,
   withdrawnAt: Schema.DateTimeUtc,
 }) {}
 
