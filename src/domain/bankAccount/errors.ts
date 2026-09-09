@@ -11,4 +11,13 @@ export class InsufficientFunds extends Data.TaggedError("InsufficientFunds")<{
   available: number;
 }> {}
 
-export type BankAccountError = AccountNotFound | AccountAlreadyOpen | AccountClosedError | InsufficientFunds;
+export class BalanceOverflow extends Data.TaggedError("BalanceOverflow")<{
+  attempted: number;
+}> {}
+
+export type BankAccountError =
+  | AccountNotFound
+  | AccountAlreadyOpen
+  | AccountClosedError
+  | InsufficientFunds
+  | BalanceOverflow;

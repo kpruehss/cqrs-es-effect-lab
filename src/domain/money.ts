@@ -1,4 +1,5 @@
-import { Schema } from "effect";
+import { Either, Schema } from "effect";
+import { BalanceOverflow } from "./bankAccount/errors";
 
 /*
  * Cents: a positive whole number of minor units (ex 5000 == $50.00).
@@ -56,3 +57,17 @@ export const subCents = (a: Cents, b: Cents): Cents => (a - b) as Cents;
  */
 export const applyToBalance = (balance: BalanceCents, amount: Cents, dir: "credit" | "debit"): BalanceCents =>
   (dir === "credit" ? balance + amount : balance - amount) as BalanceCents;
+
+/*
+ * Safe-integer ceiling as enforced invariant, checked at decide-time
+ */
+export const nextBalance = (
+  balance: BalanceCents,
+  amount: Cents,
+  dir: "credit" | "debit",
+): Either.Either<BalanceCents, BalanceOverflow> => {
+  const raw = dir === "credit" ? balance + amount : balance - amount;
+  return Number.isSafeInteger(raw)
+    ? Either.right(raw as BalanceCents)
+    : Either.left(new BalanceOverflow({ attempted: raw }));
+};
