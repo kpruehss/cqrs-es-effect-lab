@@ -38,11 +38,13 @@ export const BalanceCents = Schema.Int.pipe(Schema.brand("BalanceCents"));
 export type BalanceCents = typeof BalanceCents.Type;
 
 /*
- * Zero values for Cents and BalanceCents using synchronous decoding. Runs once on boot to add compile and runtime
- * guarantee that 0 actually satisfies the Cents/BalanceCents schema. Fails loudly at boot if future refinement forbids
- * 0 balance/amounts. No runtime cost as this runs only once to assert compliance
+ * Zero balance, via synchronous decoding: runs once on boot to guarantee 0 actually satisfies the
+ * BalanceCents schema, failing loudly if a future refinement ever forbids it. No per-op cost.
+ *
+ * There is deliberately NO `zeroCents`: Cents is a transaction *amount* and is `Schema.positive()`,
+ * so 0 is not a valid Cents by design — a zero deposit/withdrawal is nonsense. Zero only makes sense
+ * as an opening *balance*, which is BalanceCents (signed, so 0 is valid).
  */
-export const zeroCents = Schema.decodeSync(Cents)(0);
 export const zeroBalance = Schema.decodeSync(BalanceCents)(0);
 
 /*
