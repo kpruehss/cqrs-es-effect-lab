@@ -1,0 +1,28 @@
+{
+  "name": "cqrs-es-effect-lab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@effect/platform": "^0.97.1",
+    "@effect/platform-node": "^0.108.1",
+    "@effect/sql": "^0.52.1",
+    "@effect/sql-pg": "^0.53.0",
+    "effect": "^3.22.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12",
+    "@effect/vitest": "^0.30.0",
+    "@types/node": "^26.5.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
+  }
+}
