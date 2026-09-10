@@ -1,5 +1,5 @@
 import { SqlClient } from "@effect/sql";
-import { SqlError } from "@effect/sql/SqlError";
+import type { SqlError } from "@effect/sql/SqlError";
 import { Context, Effect, Layer, pipe } from "effect";
 import { ConcurrencyConflict } from "./errors";
 
